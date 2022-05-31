@@ -47,6 +47,9 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'role' => 'required|in:merchant,consumer',
+        ], [
+            'role.in' => "The selected role is invalid, Please choose merchant or consumer Role."
         ]);
 
         $user = User::create([
@@ -54,6 +57,11 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+        if ($request->role == 'merchant') {
+            $user->assignRole('merchant');
+        } elseif ($request->role == 'consumer') {
+            $user->assignRole('consumer');
+        }
 
         $token = Auth::login($user);
         return response()->json([

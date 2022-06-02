@@ -12,8 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    use HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -36,6 +35,15 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -46,12 +54,13 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    public function stores()
+    {
+        return $this->hasMany(Store::class);
+    }
+
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
 }

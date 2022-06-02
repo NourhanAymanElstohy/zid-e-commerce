@@ -7,11 +7,11 @@ This Project is a simple e-commerce apis laravel 9
 -   php-open-source-saver/jwt-auth
 -   spatie/laravel-permission
 
-## Tech/framework used
+## Technologies used
 
-<b>Built with</b>
-
--   [Laravel](https://laravel.com)
+-   PHP
+-   Laravel
+-   MySQL
 
 ## Features
 

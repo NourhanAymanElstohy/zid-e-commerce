@@ -74,7 +74,7 @@ Start the local development server
 php artisan serve
 ```
 
-You can now access the server at http://localhost:8000 and Test All Apis
+You can now access the server at http://localhost:8000 and test all APIs
 
 **Command List**
 

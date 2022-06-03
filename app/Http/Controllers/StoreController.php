@@ -32,7 +32,7 @@ class StoreController extends Controller
     {
         $store = Store::find($request->id);
         if ($store)
-            return response()->json(['data' => $store->products], 200);
+            return response()->json(['data' => $store->products()->paginate()], 200);
         else
             return response()->json(['message' => 'No Stores Found'], 404);
     }

@@ -4,18 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    public function getProducts(Request $request)
+
+    protected $productService;
+
+    public function __construct(ProductService $productService)
     {
-        $products = Product::where('store_id', $request->id)->with('store')->get();
-        if ($products->count() > 0)
-            return response()->json(["data" => $products], 200);
-        else
-            return response()->json(['message' => 'No Products Found'], 404);
+        $this->productService = $productService;
+    }
+
+    public function getProducts()
+    {
+        $products = Product::with('store')->paginate();
+        return response()->json(["data" => $products], 200);
     }
 
     public function getProduct(Request $request)
@@ -33,25 +39,14 @@ class ProductController extends Controller
         $user_stores_ids = $user->stores->pluck('id');
 
         if ($user_stores_ids->contains($request->store_id)) {
-            $product = Product::create([
-                'name_en' => $request->name_en,
-                'name_ar' => $request->name_ar,
-                'description_en' => $request->description_en,
-                'description_ar' => $request->description_ar,
-                'price' => $request->price,
-                'shipping_cost' => $request->shipping_cost,
-                'is_vat_included' => $request->is_vat_included,
-                'vat_percentage' => $request->vat_percentage,
-                'store_id' => $request->store_id,
-                'quantity' => $request->quantity ?: 0,
-            ]);
+            $product = $this->productService->create($request);
             return response()->json(['message' => 'Product has been added successfully', "data" => $product], 200);
         } else {
-            return response()->json(["message" => "Unauthorized"], 401);
+            return response()->json(["message" => "Unauthorized to access this store"], 401);
         }
     }
 
-    public function updateProduct(ProductRequest $request)
+    public function updateProduct(Request $request)
     {
         $product = Product::find($request->id);
         if ($product) {
@@ -59,19 +54,7 @@ class ProductController extends Controller
             $user_stores_ids = $user->stores->pluck('id');
 
             if ($user_stores_ids->contains($request->store_id)) {
-                $product->update([
-                    'name_en' => $request->name_en,
-                    'name_ar' => $request->name_ar,
-                    'description_en' => $request->description_en,
-                    'description_ar' => $request->description_ar,
-                    'price' => $request->price,
-                    'shipping_cost' => $request->shipping_cost,
-                    'is_vat_included' => $request->is_vat_included,
-                    'vat_percentage' => $request->vat_percentage,
-                    'store_id' => $request->store_id,
-                    'quantity' => $request->quantity ?: 0,
-                ]);
-
+                $this->productService->update($product, $request);
                 return response()->json(['message' => 'Product has been updated successfully', ["data" => $product]], 200);
             } else
                 return response()->json(["message" => "Unauthorized"], 401);

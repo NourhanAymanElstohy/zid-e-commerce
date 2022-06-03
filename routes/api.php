@@ -34,9 +34,9 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::post('add-store', [StoreController::class, 'addStore']);
         Route::post('stores/{id}/set-name', [StoreController::class, 'setStoreName']);
         Route::delete('delete-store/{id}', [StoreController::class, 'deleteStore']);
-
+        
         Route::post('add-product', [ProductController::class, 'addProduct']);
-        Route::put('update-product/{id}', [ProductController::class, 'updateProduct']);
+        Route::post('update-product/{id}', [ProductController::class, 'updateProduct']);
         Route::delete('delete-product/{id}', [ProductController::class, 'deleteProduct']);
     });
 
@@ -52,5 +52,5 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 Route::get('get-all-stores', [StoreController::class, 'getAllStores']);
 Route::get('get-store-products/{id}', [StoreController::class, 'getStoreProducts']);
-Route::get('stores/{id}/all-products', [ProductController::class, 'getProducts']);
+Route::get('all-products', [ProductController::class, 'getProducts']);
 Route::get('get-product/{id}', [ProductController::class, 'getProduct']);

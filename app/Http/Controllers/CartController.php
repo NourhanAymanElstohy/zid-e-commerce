@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CartRequest;
 use App\Models\Cart;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -19,12 +20,8 @@ class CartController extends Controller
             return response()->json(["message" => "No Carts Found"], 404);
     }
 
-    public function addToCart(Request $request)
+    public function addToCart(CartRequest $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id'
-        ]);
-
         $user = Auth::user();
         $cart = $user->cart;
         $product = Product::find($request->product_id);
@@ -53,12 +50,8 @@ class CartController extends Controller
         }
     }
 
-    public function removeProductFromCart(Request $request)
+    public function removeProductFromCart(CartRequest $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id'
-        ]);
-
         $user = Auth::user();
         $cart = $user->cart;
         $cart_products = $cart->products->pluck('id');

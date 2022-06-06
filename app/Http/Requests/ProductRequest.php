@@ -30,10 +30,17 @@ class ProductRequest extends FormRequest
             'description_ar' => 'required|string',
             'price' => 'required|numeric',
             'shipping_cost' => 'nullable|numeric',
-            'is_vat_included' => 'nullable|numeric',
+            'is_vat_included' => 'nullable|in:0,1',
             'vat_percentage' => 'nullable|numeric|required_if:is_vat_included,0',
             'store_id' => 'required|exists:stores,id',
             'quantity' => 'numeric|nullable',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'is_vat_included.in' => 'The selected is vat included is invalid, please select 0 or 1',
         ];
     }
 }

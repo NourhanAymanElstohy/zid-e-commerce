@@ -18,15 +18,15 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function getProducts()
+    public function index()
     {
-        $products = Product::with('store')->paginate();
+        $products = $this->productService->getProducts();
         return response()->json(["data" => $products], 200);
     }
 
-    public function getProduct(Request $request)
+    public function show(Request $request)
     {
-        $product = Product::find($request->id);
+        $product = $this->productService->getProductData($request->id);
         if ($product)
             return response()->json(["data" => $product], 200);
         else
@@ -46,7 +46,7 @@ class ProductController extends Controller
         }
     }
 
-    public function updateProduct(Request $request)
+    public function updateProduct(ProductRequest $request)
     {
         $product = Product::find($request->id);
         if ($product) {
@@ -64,15 +64,12 @@ class ProductController extends Controller
 
     public function deleteProduct(Request $request)
     {
-        $user = Auth::user();
-        $product = Product::find($request->id);
-        if ($product) {
-            if ($user->stores->contains($product->store_id)) {
-                $product->delete();
-                return response()->json(['message' => 'Product has been deleted successfully'], 200);
-            } else
-                return response()->json(['message' => 'Unauthorized'], 401);
-        } else
+        $result = $this->productService->delete($request->id);
+        if ($result == 1)
+            return response()->json(['message' => 'Product has been deleted successfully'], 200);
+        elseif ($result == 2)
+            return response()->json(['message' => 'Unauthorized'], 401);
+        elseif ($result == 0)
             return response()->json(['message' => 'No Product Found'], 404);
     }
 }

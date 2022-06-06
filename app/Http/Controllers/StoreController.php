@@ -4,15 +4,22 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreRequest;
 use App\Models\Store;
+use App\Services\StoreService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class StoreController extends Controller
 {
+    protected $storeService;
+
+    public function __construct(StoreService $storeService)
+    {
+        $this->storeService = $storeService;
+    }
+
     public function getMerchantStores()
     {
-        $user = Auth::user();
-        $stores = $user->stores()->paginate();
+        $stores = $this->storeService->getMerchantStores(Auth::user());
         if ($stores->count() > 0)
             return response()->json(['data' => $stores], 200);
         else
@@ -21,7 +28,7 @@ class StoreController extends Controller
 
     public function getAllStores()
     {
-        $stores = Store::paginate();
+        $stores = $this->storeService->getAllStores();
         if ($stores->count() > 0)
             return response()->json(['data' => $stores], 200);
         else
@@ -30,19 +37,16 @@ class StoreController extends Controller
 
     public function getStoreProducts(Request $request)
     {
-        $store = Store::find($request->id);
-        if ($store)
-            return response()->json(['data' => $store->products()->paginate()], 200);
+        $products = $this->storeService->getStoreProducts($request->id);
+        if ($products)
+            return response()->json(['data' => $products], 200);
         else
             return response()->json(['message' => 'No Stores Found'], 404);
     }
 
     public function addStore(StoreRequest $request)
     {
-        $store = Store::create([
-            'user_id' => Auth::id(),
-            'name' => $request->name,
-        ]);
+        $store = $this->storeService->create($request);
         return response()->json(['message' => 'Store has been created successfully', ["data" => $store]], 200);
     }
 
@@ -53,7 +57,7 @@ class StoreController extends Controller
         if ($store) {
             $user_stores = $user->stores;
             if ($user_stores->contains($store->id)) {
-                $store->update(['name' => $request->name]);
+                $this->storeService->update($store, $request);
                 return response()->json(['message' => 'Your store name has been updated successfully', ["data" => $store]], 200);
             } else
                 return response()->json(['message' => 'Unauthorized to access this store'], 401);
@@ -63,16 +67,12 @@ class StoreController extends Controller
 
     public function deleteStore(Request $request)
     {
-        $user = Auth::user();
-        $store = Store::find($request->id);
-        if ($store) {
-            $user_stores = $user->stores;
-            if ($user_stores->contains($store->id)) {
-                $store->delete();
-                return response()->json(['message' => 'Store has been deleted successfully'], 200);
-            } else
-                return response()->json(['message' => 'Unauthorized'], 401);
-        } else
+        $result = $this->storeService->delete($request->id);
+        if ($result == 1)
+            return response()->json(['message' => 'Store has been deleted successfully'], 200);
+        elseif ($result == 2)
+            return response()->json(['message' => 'Unauthorized'], 401);
+        elseif ($result == 0)
             return response()->json(['message' => 'No stores Found'], 404);
     }
 }

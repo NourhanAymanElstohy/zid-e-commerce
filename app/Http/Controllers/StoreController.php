@@ -52,16 +52,13 @@ class StoreController extends Controller
 
     public function setStoreName(StoreRequest $request)
     {
-        $user = Auth::user();
         $store = Store::find($request->id);
-        if ($store) {
-            $user_stores = $user->stores;
-            if ($user_stores->contains($store->id)) {
-                $this->storeService->update($store, $request);
-                return response()->json(['message' => 'Your store name has been updated successfully', ["data" => $store]], 200);
-            } else
-                return response()->json(['message' => 'Unauthorized to access this store'], 401);
-        } else
+        $result = $this->storeService->update($store, $request);
+        if ($result == 1)
+            return response()->json(['message' => 'Your store name has been updated successfully', ["data" => $store]], 200);
+        elseif ($result == 2)
+            return response()->json(['message' => 'Unauthorized to access this store'], 401);
+        elseif ($result == 0)
             return response()->json(['message' => 'No stores Found'], 404);
     }
 

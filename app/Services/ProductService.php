@@ -37,7 +37,22 @@ class ProductService
 
     public function update(Product $product, $request): bool
     {
-        $product->update([
+        if ($product) {
+            $user = Auth::user();
+            $user_stores_ids = $user->stores->pluck('id');
+
+            if ($user_stores_ids->contains($request->store_id)) {
+                $this->updateData($product, $request);
+                return 1;
+            } else
+                return 2;
+        } else
+            return 0;
+    }
+
+    public function updateData($product, $request)
+    {
+        return $product->update([
             'name_en' => $request->name_en,
             'name_ar' => $request->name_ar,
             'description_en' => $request->description_en,
@@ -49,8 +64,6 @@ class ProductService
             'store_id' => $request->store_id,
             'quantity' => $request->quantity ?: 0,
         ]);
-
-        return true;
     }
 
     public function delete($productId)

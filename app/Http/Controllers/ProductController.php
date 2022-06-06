@@ -49,16 +49,12 @@ class ProductController extends Controller
     public function updateProduct(ProductRequest $request)
     {
         $product = Product::find($request->id);
-        if ($product) {
-            $user = Auth::user();
-            $user_stores_ids = $user->stores->pluck('id');
-
-            if ($user_stores_ids->contains($request->store_id)) {
-                $this->productService->update($product, $request);
-                return response()->json(['message' => 'Product has been updated successfully', ["data" => $product]], 200);
-            } else
-                return response()->json(["message" => "Unauthorized"], 401);
-        } else
+        $result = $this->productService->update($product, $request);
+        if ($result == 1)
+            return response()->json(['message' => 'Product has been updated successfully', ["data" => $product]], 200);
+        elseif ($result == 2)
+            return response()->json(["message" => "Unauthorized"], 401);
+        elseif ($result == 0)
             return response()->json(['message' => 'No Products Found'], 404);
     }
 

@@ -35,8 +35,16 @@ class StoreService
 
     public function update(Store $store, $request): bool
     {
-        $store->update(['name' => $request->name]);
-        return true;
+        $user = Auth::user();
+        if ($store) {
+            $user_stores = $user->stores;
+            if ($user_stores->contains($store->id)) {
+                $store->update(['name' => $request->name]);
+                return 1;
+            } else
+                return 2;
+        } else
+            return 0;
     }
 
     public function delete($storeId)

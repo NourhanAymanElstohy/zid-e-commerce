@@ -1,6 +1,6 @@
 ## About Project
 
-This Project is a simple e-commerce apis laravel 9
+This Project is a simple e-commerce apis using laravel 9
 
 ## Packages Used
 
